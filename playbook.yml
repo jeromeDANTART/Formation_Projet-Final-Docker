@@ -1,0 +1,77 @@
+- name: Projet Final
+  hosts: ec2
+  become: yes
+  vars:
+    user: jean
+  tasks:
+  - name: change hostname
+    hostname:
+      name: nuvola
+  
+  - name: install programs
+    apt:
+      update_cache: yes
+      name: '{{ item }}'
+    loop: ["docker.io", "nodejs", "npm"]
+
+  - name: create developers group
+    group:
+      name: developers
+      state: present
+
+  - name: create user {{ user }}
+    user:
+      name: '{{ user }}'
+      groups: docker,developers
+      shell: /bin/bash
+      append: yes
+
+  - name: create .ssh directory
+    file: 
+      path: /home/{{ user }}/.ssh
+      state: directory
+      owner: '{{ user }}'
+
+  - name: copy ssh config file
+    copy:
+      src: config
+      dest: /home/{{ user }}/.ssh/config
+      mode: '0600'
+      owner: '{{ user }}'
+
+  - name: copy github private key
+    copy:
+      src: keys/nuvola
+      dest: /home/{{ user }}/.ssh/nuvola
+      mode: '0600'
+      owner: '{{ user }}'
+  
+  - name: git config
+    copy:
+      src: .gitconfig
+      dest: /home/{{ user }}/.gitconfig
+      owner: '{{ user }}'
+
+  - name: git clone nuvolapp repo
+    become: yes
+    git:
+      accept_hostkey: yes
+      repo: git@github.com:cdufour/nuvolapp.git
+      key_file: /home/{{ user }}/.ssh/nuvola
+      dest: /home/{{ user }}/nuvolapp
+      force: yes
+  
+  - name: permissions on nuvolapp dir
+    file:
+      path: /home/{{ user }}/nuvolapp
+      recurse: yes
+      owner: '{{ user }}'
+  
+  - name: send public key for ssh connection
+    authorized_key:
+      user: '{{ user }}'
+      key: "{{ lookup('file', 'keys/akka.pub') }}"
+
+  - name: download docker images
+    command: docker pull {{ item }}
+    loop: ["node:14-alpine", "mongo:4.4"]
