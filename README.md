@@ -4,4 +4,4 @@
 
 [Sources de l'application + Dockerfile + Jenskinsfile](https://github.com/cdufour/nuvolapp)  
 
-Le dosier k8s-pfinal contient les **manifestes yaml** de dépoiemments en cluster Kubernetes
+Le dosier k8s-pfinal contient les **manifestes yaml** de dépoiements en cluster Kubernetes
