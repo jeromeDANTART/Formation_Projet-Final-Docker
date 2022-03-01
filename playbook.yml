@@ -12,7 +12,7 @@
     apt:
       update_cache: yes
       name: '{{ item }}'
-    loop: ["docker.io", "nodejs", "npm"]
+    loop: ["docker.io", "nodejs", "npm", "docker-compose"]
 
   - name: create developers group
     group:
@@ -46,14 +46,13 @@
       mode: '0600'
       owner: '{{ user }}'
   
-  - name: git config
+  - name: copy git config
     copy:
       src: .gitconfig
       dest: /home/{{ user }}/.gitconfig
       owner: '{{ user }}'
 
   - name: git clone nuvolapp repo
-    become: yes
     git:
       accept_hostkey: yes
       repo: git@github.com:cdufour/nuvolapp.git

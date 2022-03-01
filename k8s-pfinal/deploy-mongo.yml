@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-mongo
+  namespace: pfinal
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo-container
+        image: mongo:4.4
+        ports:
+        - containerPort: 27017 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: pfinal
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+
